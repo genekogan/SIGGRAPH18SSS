@@ -20,6 +20,43 @@ SNAPSHOT_DIR = 'model/'
 WEIGHT_DECAY = 0.0005
 
 
+
+
+class Map(dict):
+    """
+    Example:
+    m = Map({'first_name': 'Eduardo'}, last_name='Pool', age=24, sports=['Soccer'])
+    """
+    def __init__(self, *args, **kwargs):
+        super(Map, self).__init__(*args, **kwargs)
+        for arg in args:
+            if isinstance(arg, dict):
+                for k, v in arg.items():
+                    self[k] = v
+
+        if kwargs:
+            for k, v in kwargs.items():
+                self[k] = v
+
+    def __getattr__(self, attr):
+        return self.get(attr)
+
+    def __setattr__(self, key, value):
+        self.__setitem__(key, value)
+
+    def __setitem__(self, key, value):
+        super(Map, self).__setitem__(key, value)
+        self.__dict__.update({key: value})
+
+    def __delattr__(self, item):
+        self.__delitem__(item)
+
+    def __delitem__(self, key):
+        super(Map, self).__delitem__(key)
+        del self.__dict__[key]
+        
+      
+
 def get_arguments():
     """Parse all the arguments provided from the CLI.
     
@@ -71,3 +108,31 @@ def get_arguments():
     parser.add_argument("--weight-decay", type=float, default=WEIGHT_DECAY,
                         help="Regularisation parameter for L2-loss.")
     return parser.parse_args()
+
+
+
+def get_arguments_auto():
+    args = Map({
+        "batch_size" : BATCH_SIZE,
+        "feat_dir" : FEATSAVE_DIR,
+        "data_dir" : DATA_DIRECTORY,
+        "grad_update_every" : GRAD_UPDATE_EVERY,
+        "ignore_label" : IGNORE_LABEL,
+        "input_size" : INPUT_SIZE,
+        "is_training" : False,
+        "learning_rate" : LEARNING_RATE,
+        "momentum" : MOMENTUM,
+        "not_restore_last" : False, 
+        "num_classes" : NUM_CLASSES,
+        "num_steps" : NUM_STEPS,
+        "power" : POWER,
+        "random_mirror" : False, 
+        "random_scale" : False, 
+        "random_seed" : RANDOM_SEED,
+        "restore_from" : RESTORE_FROM,
+        "save_num_images" : SAVE_NUM_IMAGES,
+        "save_pred_every" : SAVE_PRED_EVERY,
+        "snapshot_dir" : SNAPSHOT_DIR, 
+        "weight_decay" : WEIGHT_DECAY
+    })
+    return args
